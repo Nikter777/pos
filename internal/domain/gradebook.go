@@ -2,9 +2,11 @@ package domain
 
 import (
 	"fmt"
+	"maps"
 	"math"
 	"slices"
 	"strings"
+	"unicode"
 )
 
 type registration struct {
@@ -17,7 +19,7 @@ func (r registration) Name() string { return r.name }
 
 func newRegistration(id, name string) (registration, error) {
 	id, name = strings.TrimSpace(id), strings.TrimSpace(name)
-	if id == "" || strings.ContainsAny(id, " \t\r\n") {
+	if id == "" || strings.IndexFunc(id, unicode.IsSpace) >= 0 {
 		return registration{}, fmt.Errorf("идентификатор должен быть непустым и без пробелов")
 	}
 	if name == "" {
@@ -60,26 +62,12 @@ type Gradebook struct {
 	scores   map[evaluationKey]Score
 }
 
-func NewGradebook() *Gradebook {
-	return &Gradebook{
-		students: make(map[string]Student),
-		criteria: make(map[string]Criterion),
-		scores:   make(map[evaluationKey]Score),
-	}
-}
-
 func (g *Gradebook) Clone() *Gradebook {
-	copy := NewGradebook()
-	for id, student := range g.students {
-		copy.students[id] = student
+	return &Gradebook{
+		students: maps.Clone(g.students),
+		criteria: maps.Clone(g.criteria),
+		scores:   maps.Clone(g.scores),
 	}
-	for id, criterion := range g.criteria {
-		copy.criteria[id] = criterion
-	}
-	for key, score := range g.scores {
-		copy.scores[key] = score
-	}
-	return copy
 }
 
 func (g *Gradebook) AddStudent(id, name string) error {

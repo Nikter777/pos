@@ -12,7 +12,7 @@ type Repository struct {
 }
 
 func NewRepository() *Repository {
-	return &Repository{book: domain.NewGradebook()}
+	return &Repository{book: &domain.Gradebook{}}
 }
 
 func (r *Repository) Snapshot() *domain.Gradebook {
